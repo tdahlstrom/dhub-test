@@ -54,4 +54,4 @@ jobs:
             > ~/.docker/config.json
       - name: Test output
         run: |
-          ./hub-tool tags
+          ./hub-tool tag -h
