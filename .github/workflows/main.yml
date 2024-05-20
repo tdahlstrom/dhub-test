@@ -10,6 +10,7 @@ jobs:
         run: |
           sudo apt-get install -y qemu qemu-user-static
       - name: Download hub-tool
+        run: |
           curl https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
       - name: Uncompress hub-tool
         run: |
