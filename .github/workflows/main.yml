@@ -54,4 +54,4 @@ jobs:
             > ~/.docker/config.json
       - name: Test output
         run: |
-          ./hub-tool -h
+          ./hub-tool repo ls
