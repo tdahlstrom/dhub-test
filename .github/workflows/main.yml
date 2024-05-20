@@ -8,7 +8,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Download dependencies
         run: |
-          apt-get install -y jq qemu qemu-user-static
+          sudo apt-get install -y jq qemu qemu-user-static
           curl https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
       - name: Uncompress hub-tool
         run: |
