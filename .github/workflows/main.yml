@@ -17,6 +17,9 @@ jobs:
           ls
           tar -xvzf hub-tool-linux-amd64.tar.gz
           rm hub-tool-linux-amd64.tar.gz
+          mv ./hub-tool/hub-tool ./hub-tool
+          rm ./hub-tool/LICENSE
+          rmdir ./hub-tool
       # - name: Remove old tags from Docker Hub
       #   run: |
       #     echo "To be completed after first push."
