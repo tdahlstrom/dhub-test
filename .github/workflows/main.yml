@@ -41,7 +41,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          cat $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --passowrd-stdin
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --passowrd-stdin
       - name: Remove old tags from Docker Hub
         run: |
           echo "To be completed after first push."
