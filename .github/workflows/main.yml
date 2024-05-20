@@ -53,19 +53,17 @@ jobs:
         run: |
           docker build -t dhub-test:latest__amd64 --build-arg ARCH=amd64/ .
           docker tag dhub-test:latest__amd64 tjdahl/dhub-test:latest__amd64
+          docker push tjdahl/dhub-test:latest__amd64
       - name: Create arm64 image, tag, and push
         run: |
           docker buildx build --platform linux/arm64 -t dhub-test:latest__arm64 .
           docker tag dhub-test:latest__arm64 tjdahl/dhub-test:latest__arm64
+          docker push tjdahl/dhub-test:latest__arm64
       - name: Generate manifest for images and push
         run: |
           docker manifest create tjdahl/dhub-test:latest \
           --amend tjdahl/dhub-test:latest__amd64 \
           --amend tjdahl/dhub-test:latest__arm64
-      - name: Push everything to Docker Hub
-        run: |
-          docker push tjdahl/dhub-test:latest__amd64
-          docker push tjdahl/dhub-test:latest__arm64
           docker manifest push tjdahl/dhub-test:latest
       - name: Logout of Docker Hub with docker
         run: |
