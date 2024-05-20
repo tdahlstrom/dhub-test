@@ -37,9 +37,9 @@ jobs:
             > ~/.docker/config.json
       - name: Remove old tags from Docker Hub
         run: |
-          ./hub-tool tag rm tjdahl/dhub-test:latest__amd64 || true
-          ./hub-tool tag rm tjdahl/dhub-test:latest__arm64 || true
-          ./hub-tool tag rm tjdahl/dhub-test:latest || true
+          ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
+          ./hub-tool tag rm --force tjdahl/dhub-test:latest__arm64 || true
+          ./hub-tool tag rm --force tjdahl/dhub-test:latest || true
       - name: Logout of Docker Hub with hub-tool
         run: |
           ./hub-tool logout
