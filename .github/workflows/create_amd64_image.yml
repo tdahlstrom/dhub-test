@@ -1,5 +1,5 @@
 name: Create_amd64_Image
-on: push
+on: [push]
 
 jobs:
   build:
