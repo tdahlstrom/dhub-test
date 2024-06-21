@@ -1,7 +1,7 @@
 name: Update_Manifest
 on:
   workflow_run:
-    workflows: [Create_amd64_Image]
+    workflows: [Create_arm64_Image]
     types:
       -completed
 
