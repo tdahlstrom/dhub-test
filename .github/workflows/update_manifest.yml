@@ -1,5 +1,9 @@
 name: Update_Manifest
-on: push
+on:
+  workflow_run:
+    workflows: [Create_amd64_Image]
+    types:
+      -completed
 
 jobs:
   build:
