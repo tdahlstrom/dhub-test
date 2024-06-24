@@ -3,7 +3,7 @@ on:
   workflow_run:
     workflows: [Create_arm64_Image]
     types:
-      -completed
+      - completed
 
 jobs:
   build:
