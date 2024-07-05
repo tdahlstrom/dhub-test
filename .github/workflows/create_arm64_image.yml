@@ -1,9 +1,9 @@
 name: Create_arm64_Image
-# on:
-#   workflow_run:
-#     workflows: [Create_amd64_Image]
-#     types:
-#       - completed
+on:
+  workflow_run:
+    workflows: [Create_amd64_Image]
+    types:
+      - completed
 
 jobs:
   build:
@@ -24,6 +24,28 @@ jobs:
           mv ./hub-tool ./hub-tool-dir
           mv ./hub-tool-dir/hub-tool ./hub-tool
           rm -rf ./hub-tool-dir
+      - name: Check to see if image with :test__arm64 is present and remove if found
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
+            # Fool the login command (https://github.com/docker/hub-tool/pull/198)
+            # ./hub-tool login
+            # Token commands thank to https://stackoverflow.com/a/59334315/5155484
+            HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
+            USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
+            USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
+            mkdir -p ~/.docker/
+            printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
+              "$USER_PASS" "$USERNAME" \
+              "$USERNAME" "$HUB_TOKEN" \
+              > ~/.docker/config.json
+            # Remove arm64 tag from Docker Hub
+            ./hub-tool tag rm --force tjdahl/dhub-test:test__arm64 || true
+            # Logout of Docker Hub with hub-tool
+            ./hub-tool logout
+          fi          
       - name: Create arm64 image and tag
         run: |
           docker buildx build --platform linux/arm64 -t dhub-test:test__arm64 .
@@ -34,28 +56,6 @@ jobs:
             echo "Arm64 image failed to build properly."
             exit 1;
           fi
-      # - name: Log into Docker Hub with hub-tool
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #   run: |
-      #     # Fool the login command (https://github.com/docker/hub-tool/pull/198)
-      #     # ./hub-tool login
-      #     # Token commands thank to https://stackoverflow.com/a/59334315/5155484
-      #     HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
-      #     USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
-      #     USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
-      #     mkdir -p ~/.docker/
-      #     printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
-      #       "$USER_PASS" "$USERNAME" \
-      #       "$USERNAME" "$HUB_TOKEN" \
-      #       > ~/.docker/config.json
-      # - name: Remove arm64 tag from Dlcker Hub
-      #   run: |
-      #     ./hub-tool tag rm --force tjdahl/dhub-test:latest__arm64 || true
-      # - name: Logout of Docker Hub with hub-tool
-      #   run: |
-      #     ./hub-tool logout
       - name: Log into Docker Hub with docker
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -64,4 +64,7 @@ jobs:
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - name: Push arm64 image
         run: |
-          docker push tjdahl/dhub-test:latest__arm64
+          docker push tjdahl/dhub-test:test__arm64
+      - name: Logout of Docker Hub with docker
+        run: |
+          docker logout
