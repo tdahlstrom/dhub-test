@@ -49,15 +49,21 @@ jobs:
             "$USER_PASS" "$USERNAME" \
             "$USERNAME" "$HUB_TOKEN" \
             > ~/.docker/config.json
-      - name: Remove latest__amd64 tag from Docker Hub
+      - name: Remove latest__amd64 tag from Docker Hub if present
         run: |
-          ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
-      - name: Remove latest__arm64 tag from Docker Hub
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest__amd64"; then
+            ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
+          fi
+      - name: Remove latest__arm64 tag from Docker Hub if present
         run: |
-          ./hub-tool tag rm --force tjdahl/dhub-test:latest__arm64 || true
-      - name: Remove latest manifest from Docker Hub
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest__arm64"; then
+            ./hub-tool tag rm --force tjdahl/dhub-test:latest__arm64 || true
+          fi
+      - name: Remove latest manifest from Docker Hub if present
         run: |
-          ./hub-tool tag rm --force tjdahl/dhub-test:latest || true
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest"; then
+            ./hub-tool tag rm --force tjdahl/dhub-test:latest || true
+          fi
       - name: Logout of Docker Hub with hub-tool
         run: |
           ./hub-tool logout
@@ -69,8 +75,10 @@ jobs:
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - name: Rename test tags
         run: |
-          docker tag tjdahl/dhub-test:test__amd64 tjdahl/dhub-test:latest__amd64
-          docker tag tjdahl/dhub-test:test__arm64 tjdahl/dhub-test:latest__arm64
+          docker manifest create tjdahl/dhub-test:latest__amd64 tjdahl/dhub-test:test__amd64
+          docker manifest push tjdahl/dhub-test:latest__amd64
+          docker manifest create tjdahl/dhub-test:latest__arm64 tjdahl/dhub-test:test__arm64 
+          docker manifest push tjdahl/dhub-test:latest__arm64
       - name: Generate manifest for images and push
         run: |
           docker manifest create tjdahl/dhub-test:latest \
