@@ -25,7 +25,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          if [[ curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__amd64"]]; then
+          if [[ curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__amd64" ]]; then
             # Fool the login command (https://github.com/docker/hub-tool/pull/198)
             # ./hub-tool login
             # Token commands thank to https://stackoverflow.com/a/59334315/5155484
