@@ -50,7 +50,7 @@ jobs:
         run: |
           if [[ $(docker run --rm tjdahl/dhub-test:test__amd64) != "test" ]]; then
             echo "Amd64 image failed to build properly."
-            exit 1;
+            exit 1
           fi
       - name: Log into Docker Hub with docker
         env:
@@ -63,4 +63,4 @@ jobs:
           docker push tjdahl/dhub-test:test__amd64
       - name: Logout of Docker Hub with docker
         run: |
-          docker logout 
+          docker logout
