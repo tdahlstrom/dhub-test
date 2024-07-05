@@ -21,13 +21,13 @@ jobs:
           rm -rf ./hub-tool-dir
       - name: Check if :test__amd64 and :test_arm64 tags are present on Docker Hub
         run: |
-          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "hi"; then
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
             :
           else
             echo "test__amd64 tag isn't present on Docker Hub."
             exit 1
           fi
-          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "there"; then
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
             :
           else
             echo "test__arm64 tag isn't present on Docker Hub."
