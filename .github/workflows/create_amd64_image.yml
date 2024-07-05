@@ -26,7 +26,10 @@ jobs:
           docker tag dhub-test:test__amd64 tjdahl/dhub-test:test__amd64
       - name: Test built image
         run: |
-          if $(docker run --rm tjdahl/dhub-test:test__amd64) == "test"; then exit 1; fi
+          docker run --rm tjdahl/dhub-test:test__amd64
+          if $(docker run --rm tjdahl/dhub-test:test__amd64) == "test"; then
+            exit 1;
+          fi
       # - name: Log into Docker Hub with hub-tool
       #   env:
       #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
