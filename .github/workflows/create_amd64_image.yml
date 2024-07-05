@@ -22,39 +22,42 @@ jobs:
           rm -rf ./hub-tool-dir
       - name: Create amd64 image and tag
         run: |
-          docker build -t dhub-test:latest__amd64 --build-arg ARCH=amd64/ .
-          docker tag dhub-test:latest__amd64 tjdahl/dhub-test:latest__amd64
-      - name: Log into Docker Hub with hub-tool
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t dhub-test:test__amd64 --build-arg ARCH=amd64/ .
+          docker tag dhub-test:test__amd64 tjdahl/dhub-test:test__amd64
+      - name: Test built image
         run: |
-          # Fool the login command (https://github.com/docker/hub-tool/pull/198)
-          # ./hub-tool login
-          # Token commands thank to https://stackoverflow.com/a/59334315/5155484
-          HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
-          USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
-          USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
-          mkdir -p ~/.docker/
-          printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
-            "$USER_PASS" "$USERNAME" \
-            "$USERNAME" "$HUB_TOKEN" \
-            > ~/.docker/config.json
-      - name: Remove amd64 tag from Docker Hub
-        run: |
-          ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
-      - name: Logout of Docker Hub with hub-tool
-        run: |
-          ./hub-tool logout
-      - name: Log into Docker Hub with docker
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-      - name: Push amd64 image
-        run: |
-          docker push tjdahl/dhub-test:latest__amd64
-      - name: Logout of Docker Hub with docker
-        run: |
-          docker logout 
+          if $(docker run --rm tjdahl/dhub-test:test__amd64) == "test"; then exit 1; fi
+      # - name: Log into Docker Hub with hub-tool
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      #   run: |
+      #     # Fool the login command (https://github.com/docker/hub-tool/pull/198)
+      #     # ./hub-tool login
+      #     # Token commands thank to https://stackoverflow.com/a/59334315/5155484
+      #     HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
+      #     USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
+      #     USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
+      #     mkdir -p ~/.docker/
+      #     printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
+      #       "$USER_PASS" "$USERNAME" \
+      #       "$USERNAME" "$HUB_TOKEN" \
+      #       > ~/.docker/config.json
+      # - name: Remove amd64 tag from Docker Hub
+      #   run: |
+      #     ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
+      # - name: Logout of Docker Hub with hub-tool
+      #   run: |
+      #     ./hub-tool logout
+      # - name: Log into Docker Hub with docker
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      #   run: |
+      #     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      # - name: Push amd64 image
+      #   run: |
+      #     docker push tjdahl/dhub-test:latest__amd64
+      # - name: Logout of Docker Hub with docker
+      #   run: |
+      #     docker logout 

@@ -1,9 +1,9 @@
 name: Create_arm64_Image
-on:
-  workflow_run:
-    workflows: [Create_amd64_Image]
-    types:
-      - completed
+# on:
+#   workflow_run:
+#     workflows: [Create_amd64_Image]
+#     types:
+#       - completed
 
 jobs:
   build:
