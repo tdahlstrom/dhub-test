@@ -27,7 +27,7 @@ jobs:
       - name: Test built image
         run: |
           docker run --rm tjdahl/dhub-test:test__amd64
-          if $(docker run --rm tjdahl/dhub-test:test__amd64) == "test"; then
+          if [[ $(docker run --rm tjdahl/dhub-test:test__amd64) == "test" ]]; then
             exit 1;
           fi
       # - name: Log into Docker Hub with hub-tool
