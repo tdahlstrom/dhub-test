@@ -75,8 +75,10 @@ jobs:
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - name: TEST
         run: |
-          docker buildx imagetools create --tag tjdahl/dhub-test:latest__amd64 tjdahl/dhub-test:test__amd64
-          docker buildx imagetools create --tag tjdahl/dhub-test:latest__arm64 tjdahl/dhub-test:test__arm64
+          docker tag tjdahl/dhub-test:test__amd64 latest__amd64
+          docker tag tjdahl/dhub-test:test__arm64 latest__arm64
+        # docker buildx imagetools create --tag tjdahl/dhub-test:latest__amd64 tjdahl/dhub-test:test__amd64
+        # docker buildx imagetools create --tag tjdahl/dhub-test:latest__arm64 tjdahl/dhub-test:test__arm64
       - name: Generate manifest for images and push
         run: |
           docker manifest create tjdahl/dhub-test:latest \
