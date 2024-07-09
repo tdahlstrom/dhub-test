@@ -14,8 +14,8 @@ jobs:
       - name: Generate manifest for images and push
         run: |
           docker manifest create tjdahl/dhub-test:latest \
-          --amend tjdahl/dhub-test:latest__amd64 \
-          --amend tjdahl/dhub-test:latest__arm64
+          --amend tjdahl/dhub-test:test__amd64 \
+          --amend tjdahl/dhub-test:test__arm64
           docker manifest push tjdahl/dhub-test:latest
       - name: Logout of Docker Hub with docker
         run: |
