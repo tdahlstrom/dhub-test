@@ -5,15 +5,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Log into Docker Hub with docker
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      - name: Generate manifest for images and push
+        run: |
+          docker manifest create tjdahl/dhub-test:latest \
+          --amend tjdahl/dhub-test:latest__amd64 \
+          --amend tjdahl/dhub-test:latest__arm64
+          docker manifest push tjdahl/dhub-test:latest
+      - name: Logout of Docker Hub with docker
+        run: |
+          docker logout 
       # - name: Checkout code repository
       #   uses: actions/checkout@v4
-      - name: RD
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ secrets.PAT }}
-          repository: tdahlstrom/dhub-test
-          event-type: event-amd64-finished
-          client-payload: '{"amd64_tag": "testing"}'
+      # - name: RD
+      #   uses: peter-evans/repository-dispatch@v1
+      #   with:
+      #     token: ${{ secrets.PAT }}
+      #     repository: tdahlstrom/dhub-test
+      #     event-type: event-amd64-finished
+      #     client-payload: '{"amd64_tag": "testing"}'
       # - name: Download dependencies from apt
       #   run: |
       #     sudo apt-get install -y qemu qemu-user-static
