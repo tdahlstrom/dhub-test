@@ -69,7 +69,7 @@ jobs:
       - name: Create amd64 tag
         run: |
           new_amd_tag="latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)"
-          echo $new_amd_tag
+
       # - name: Create amd64 image with tag
       #   run: |
       #     docker build -t tjdahl/dhub-test:${new_amd_tag} --build-arg ARCH=amd64/ .
@@ -102,4 +102,4 @@ jobs:
           token: ${{ secrets.PAT }}
           repository: tdahlstrom/dhub-test
           event-type: event-amd64-finished
-          client-payload: '{"old_amd_tag": "$old_amd_tag", "old_arm_tag": "$old_arm_tag", "new_amd_tag": "$new_amd_tag"}'
+          client-payload: '{"old_amd_tag": "${old_amd_tag}", "old_arm_tag": "${old_arm_tag}", "new_amd_tag": "${new_amd_tag}"}'
