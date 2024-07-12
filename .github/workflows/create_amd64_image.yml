@@ -21,22 +21,23 @@ jobs:
         run: |
           old_amd_tag=""
           old_arm_tag=""
-          output=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort)
+          
+          repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
 
-          if echo $(output) | grep -q "test__amd64"; then
-            old_amd_tag=$(echo $(output) | grep -w)
+          if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
+            old_amd_tag=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -w "test__amd")
           else
             echo "test__amd64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
 
-          if echo $(output) | grep -q "test__arm64" | grep -q "test__arm64"; then
-            old_arm_tag=$(echo $(output) | grep -w)
+          if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
+            old_arm_tag=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -w "test__arm")
           else
             echo "test__arm64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
-          
+
           echo $(old_amd_tag)
           echo $(old_arm_tag)
       # - name: Download hub-tool
