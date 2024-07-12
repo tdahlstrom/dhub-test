@@ -5,19 +5,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout code repository
-      #   uses: actions/checkout@v4
-      # - name: RD
-      #   uses: peter-evans/repository-dispatch@v1
-      #   with:
-      #     token: ${{ secrets.PAT }}
-      #     repository: tdahlstrom/dhub-test
-      #     event-type: event-amd64-finished
-      #     client-payload: '{"amd64_tag": "testing"}'
+      - name: Checkout code repository
+        uses: actions/checkout@v4
+      
       - name: Download dependencies from apt
         run: |
           sudo apt-get install -y qemu qemu-user-static
-      - name: Check if :test__amd64 and :test__arm64 tags are present on Docker Hub
+
+      - name: Check if :test__amd64-XXXX and :test__arm64-XXXX tags are present on Docker Hub
         run: |
           old_amd_tag=""
           old_arm_tag=""
@@ -25,21 +20,19 @@ jobs:
           repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
 
           if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
-            old_amd_tag=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -w "test__amd")
+            old_amd_tag=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__amd64\.\*\$)
           else
             echo "test__amd64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
 
           if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
-            old_arm_tag=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -w "test__arm")
+            old_arm_tag=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__arm64\.\*\$)
           else
             echo "test__arm64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
 
-          echo $old_amd_tag
-          echo $old_arm_tag
       # - name: Download hub-tool
       #   run: |
       #     curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
@@ -73,29 +66,40 @@ jobs:
       #       ./hub-tool logout
       #     fi
 
-      # - name: Create amd64 tag
-      #   run: |
-      #     tag="latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)"
+      - name: Create amd64 tag
+        run: |
+          new_amd_tag="latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)"
 
-      # - name: Create amd64 image and tag
-      #   run: |
-      #     docker build -t dhub-test:test__amd64 --build-arg ARCH=amd64/ .
-      #     docker tag dhub-test:test__amd64 tjdahl/dhub-test:test__amd64
-      # - name: Test built image
-      #   run: |
-      #     if [[ $(docker run --rm tjdahl/dhub-test:test__amd64) != "test" ]]; then
-      #       echo "Amd64 image failed to build properly."
-      #       exit 1
-      #     fi
+      - name: Create amd64 image with tag
+        run: |
+          docker build -t tjdahl/dhub-test:$new_amd_tag --build-arg ARCH=amd64/ .
+
+      - name: Test built image
+        run: |
+          if [[ $(docker run --rm tjdahl/dhub-test:test__amd64) != "test" ]]; then
+            echo "Amd64 image failed to build properly."
+            exit 1
+          fi
+
       # - name: Log into Docker Hub with docker
       #   env:
       #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       #   run: |
       #     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
       # - name: Push amd64 image
       #   run: |
-      #     docker push tjdahl/dhub-test:test__amd64
+      #     docker push tjdahl/dhub-test:$new_amd_tag
+
       # - name: Logout of Docker Hub with docker
       #   run: |
       #     docker logout
+
+      - name: Send tag names to next create_arm64_image
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.PAT }}
+          repository: tdahlstrom/dhub-test
+          event-type: event-amd64-finished
+          client-payload: '{"old_amd_tag": "$old_amd_tag", "old_arm_tag": "$old_arm_tag", "new_amd_tag": "$new_amd_tag"}'
