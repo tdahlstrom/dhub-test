@@ -72,11 +72,11 @@ jobs:
 
       - name: Create amd64 image with tag
         run: |
-          docker build -t tjdahl/dhub-test:$new_amd_tag --build-arg ARCH=amd64/ .
+          docker build -t tjdahl/dhub-test:${new_amd_tag} --build-arg ARCH=amd64/ .
 
       - name: Test built image
         run: |
-          if [[ $(docker run --rm tjdahl/dhub-test:test__amd64) != "test" ]]; then
+          if [[ $(docker run --rm tjdahl/dhub-test:${new_amd_tag} != "test" ]]; then
             echo "Amd64 image failed to build properly."
             exit 1
           fi
