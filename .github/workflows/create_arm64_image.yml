@@ -4,8 +4,8 @@ on:
   #   workflows: [Create_amd64_Image]
   #   types:
   #     - completed
-  repository_dispatch:
-    types: [event-amd64-finished]
+  # repository_dispatch:
+  #   types: [event-amd64-finished]
 
 jobs:
   build:
