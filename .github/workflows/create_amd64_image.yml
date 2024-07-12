@@ -21,7 +21,7 @@ jobs:
         run: |
           old_amd_tag=""
           old_arm_tag=""
-          
+
           repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
 
           if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
@@ -38,8 +38,8 @@ jobs:
             exit 1
           fi
 
-          echo $(old_amd_tag)
-          echo $(old_arm_tag)
+          echo $old_amd_tag
+          echo $old_arm_tag
       # - name: Download hub-tool
       #   run: |
       #     curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
