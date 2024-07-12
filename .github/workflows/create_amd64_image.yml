@@ -68,7 +68,7 @@ jobs:
 
       - name: Create amd64 tag
         run: |
-          echo 'NEW_AMD_TAG="latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)"' >> $GITHUB_ENV
+          echo "NEW_AMD_TAG=latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)" >> $GITHUB_ENV
 
       # - name: Create amd64 image with tag
       #   run: |
