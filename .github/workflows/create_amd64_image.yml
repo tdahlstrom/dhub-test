@@ -102,4 +102,4 @@ jobs:
           token: ${{ secrets.PAT }}
           repository: tdahlstrom/dhub-test
           event-type: event-amd64-finished
-          client-payload: '{"old_amd_tag": "${old_amd_tag}", "old_arm_tag": "${old_arm_tag}", "new_amd_tag": "${new_amd_tag}"}'
+          client-payload: '{"old_amd_tag": ${old_amd_tag}, "old_arm_tag": ${old_arm_tag}, "new_amd_tag": ${new_amd_tag}}'
