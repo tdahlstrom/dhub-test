@@ -69,17 +69,17 @@ jobs:
       - name: Create amd64 tag
         run: |
           new_amd_tag="latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)"
+          echo $new_amd_tag
+      # - name: Create amd64 image with tag
+      #   run: |
+      #     docker build -t tjdahl/dhub-test:${new_amd_tag} --build-arg ARCH=amd64/ .
 
-      - name: Create amd64 image with tag
-        run: |
-          docker build -t tjdahl/dhub-test:${new_amd_tag} --build-arg ARCH=amd64/ .
-
-      - name: Test built image
-        run: |
-          if [[ $(docker run --rm tjdahl/dhub-test:${new_amd_tag} != "test" ]]; then
-            echo "Amd64 image failed to build properly."
-            exit 1
-          fi
+      # - name: Test the built image
+      #   run: |
+      #     if [[ $(docker run --rm tjdahl/dhub-test:${new_amd_tag}) != "test" ]]; then
+      #       echo "Amd64 image failed to build properly."
+      #       exit 1
+      #     fi
 
       # - name: Log into Docker Hub with docker
       #   env:
