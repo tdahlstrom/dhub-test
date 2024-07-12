@@ -17,14 +17,14 @@ jobs:
           repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
 
           if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
-            echo "OLD_AMD_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__amd64\.\*\$ | tr -d '"'") >> $GITHUB_ENV
+            echo "OLD_AMD_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__amd64\.\*\$ | tr -d '"')" >> $GITHUB_ENV
           else
             echo "test__amd64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
 
           if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
-            echo "OLD_ARM_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__arm64\.\*\$ | tr -d '"'") >> $GITHUB_ENV
+            echo "OLD_ARM_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__arm64\.\*\$ | tr -d '"')" >> $GITHUB_ENV
           else
             echo "test__arm64-XXXX tag isn't present on Docker Hub."
             exit 1
