@@ -26,8 +26,8 @@ jobs:
       #     mv ./hub-tool ./hub-tool-dir
       #     mv ./hub-tool-dir/hub-tool ./hub-tool
       #     rm -rf ./hub-tool-dir
-      - run: echo ${{ github.event.client_payload.old_amd_tag }}
-      - run: echo ${{ github.event.client_payload.old_arm_tag }}
+      # - run: echo ${{ github.event.client_payload.old_amd_tag }}
+      # - run: echo ${{ github.event.client_payload.old_arm_tag }}
       - run: echo ${{ github.event.client_payload.new_amd_tag }}
       # - name: Check to see if image with :test__arm64 is present and remove if found
       #   env:
