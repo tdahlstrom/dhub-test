@@ -1,11 +1,11 @@
-name: Create_arm64_Image
+name: Create_Images
 on:
   # workflow_run:
   #   workflows: [Create_amd64_Image]
   #   types:
   #     - completed
   repository_dispatch:
-    types: [event-amd64-finished]
+    types: [event-tags-finished]
 
 jobs:
   build:
@@ -29,6 +29,7 @@ jobs:
       - run: echo ${{ github.event.client_payload.OLD_AMD_TAG }}
       - run: echo ${{ github.event.client_payload.OLD_ARM_TAG }}
       - run: echo ${{ github.event.client_payload.NEW_AMD_TAG }}
+      - run: echo ${{ github.event.client_payload.NEW_ARM_TAG }}
       # - name: Check to see if image with :test__arm64 is present and remove if found
       #   env:
       #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -73,3 +74,17 @@ jobs:
       # - name: Logout of Docker Hub with docker
       #   run: |
       #     docker logout
+
+      - name: Send tag names to next create_images
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.PAT }}
+          repository: tdahlstrom/dhub-test
+          event-type: event-images-finished
+          client-payload: |
+            {
+              "old_amd_tag": "${{ github.event.client_payload.OLD_AMD_TAG }}",
+              "old_arm_tag": "${{ github.event.client_payload.OLD_ARM_TAG }}",
+              "new_amd_tag": "${{ github.event.client_payload.NEW_AMD_TAG }}",
+              "new_arm_tag": "${{ github.event.client_payload.NEW_ARM_TAG }}"
+            }

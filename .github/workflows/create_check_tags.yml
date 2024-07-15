@@ -1,17 +1,10 @@
-name: Create_amd64_Image
+name: Create_Check_Tags
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code repository
-        uses: actions/checkout@v4
-      
-      - name: Download dependencies from apt
-        run: |
-          sudo apt-get install -y qemu qemu-user-static
-
       - name: Check if :test__amd64-XXXX and :test__arm64-XXXX tags are present on Docker Hub
         run: |
           repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
@@ -67,10 +60,21 @@ jobs:
         run: |
           echo "NEW_AMD_TAG=latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)" >> $GITHUB_ENV
 
-      - name: Check that tags aren't the same
+      - name: Check that amd64 tags aren't the same
         run: |
-          if [[ ${{ env.OLD_AMD_TAG}} == "test__amd64" ]]; then
+          if [[ ${{ env.OLD_AMD_TAG}} == ${{ env.NEW_AMD_TAG}} ]]; then
             echo "OLD tag and NEWly generated tag for amd64 are the same."
+            exit 1
+          fi
+
+      - name: Create arm64 tag
+        run: |
+          echo "NEW_ARM_TAG=latest__arm64-$(date +%s | tr -d '\n' | tail -c 4)" >> $GITHUB_ENV
+
+      - name: Check that arm64 tags aren't the same
+        run: |
+          if [[ ${{ env.OLD_ARM_TAG}} == ${{ env.NEW_ARM_TAG}} ]]; then
+            echo "OLD tag and NEWly generated tag for arm64 are the same."
             exit 1
           fi
 
@@ -100,10 +104,16 @@ jobs:
       #   run: |
       #     docker logout
 
-      - name: Send tag names to next create_arm64_image
+      - name: Send tag names to next create_images
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.PAT }}
           repository: tdahlstrom/dhub-test
-          event-type: event-amd64-finished
-          client-payload: '{"old_amd_tag": "${{ env.OLD_AMD_TAG }}", "old_arm_tag": "${{ env.OLD_ARM_TAG }}", "new_amd_tag": "${{ env.NEW_AMD_TAG }}"}'
+          event-type: event-tags-finished
+          client-payload: |
+            {
+              "old_amd_tag": "${{ env.OLD_AMD_TAG }}",
+              "old_arm_tag": "${{ env.OLD_ARM_TAG }}",
+              "new_amd_tag": "${{ env.NEW_AMD_TAG }}",
+              "new_arm_tag": "${{ env.NEW_ARM_TAG }}"
+            }
