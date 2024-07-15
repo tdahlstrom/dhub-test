@@ -90,8 +90,8 @@ jobs:
           event-type: event-tags-amd64-finished
           client-payload: |
             {
-              "old_amd_tag": "${{ env.OLD_AMD_TAG }}",
-              "old_arm_tag": "${{ env.OLD_ARM_TAG }}",
-              "new_amd_tag": "${{ env.NEW_AMD_TAG }}",
-              "new_arm_tag": "${{ env.NEW_ARM_TAG }}"
+              "OLD_AMD_TAG": "${{ env.OLD_AMD_TAG }}",
+              "OLD_ARM_TAG": "${{ env.OLD_ARM_TAG }}",
+              "NEW_AMD_TAG": "${{ env.NEW_AMD_TAG }}",
+              "NEW_ARM_TAG": "${{ env.NEW_ARM_TAG }}"
             }
