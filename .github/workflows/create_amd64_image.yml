@@ -67,6 +67,13 @@ jobs:
         run: |
           echo "NEW_AMD_TAG=latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)" >> $GITHUB_ENV
 
+      - name: Check that tags aren't the same
+        run: |
+          if [ ${{ env.OLD_AMD_TAG}} == "latest__amd64"]; then
+            echo "OLD tag and NEWly generated tag for amd64 are the same."
+            exit 1
+          fi
+
       # - name: Create amd64 image with tag
       #   run: |
       #     docker build -t tjdahl/dhub-test:${new_amd_tag} --build-arg ARCH=amd64/ .
