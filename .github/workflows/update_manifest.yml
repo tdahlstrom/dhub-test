@@ -7,11 +7,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{ github.event.client_payload.OLD_AMD_TAG }}
-      - run: echo ${{ github.event.client_payload.OLD_ARM_TAG }}
-      - run: echo ${{ github.event.client_payload.NEW_AMD_TAG }}
-      - run: echo ${{ github.event.client_payload.NEW_ARM_TAG }}
-
       - name: Download hub-tool
         run: |
           curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
