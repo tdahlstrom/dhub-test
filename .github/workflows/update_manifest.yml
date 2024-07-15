@@ -1,9 +1,5 @@
 name: Update_Manifest
 on:
-  # workflow_run:
-  #   workflows: [Create_arm64_Image]
-  #   types:
-  #     - completed
   repository_dispatch:
     types: [event-arm64-finished]
 
@@ -15,82 +11,88 @@ jobs:
       - run: echo ${{ github.event.client_payload.OLD_ARM_TAG }}
       - run: echo ${{ github.event.client_payload.NEW_AMD_TAG }}
       - run: echo ${{ github.event.client_payload.NEW_ARM_TAG }}
-      # - name: Download hub-tool
-      #   run: |
-      #     curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
-      # - name: Install hub-tool
-      #   run: |
-      #     tar -xvzf hub-tool-linux-amd64.tar.gz
-      #     rm hub-tool-linux-amd64.tar.gz
-      #     mv ./hub-tool ./hub-tool-dir
-      #     mv ./hub-tool-dir/hub-tool ./hub-tool
-      #     rm -rf ./hub-tool-dir
-      # - name: Check if :test__amd64 and :test_arm64 tags are present on Docker Hub
-      #   run: |
-      #     if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
-      #       :
-      #     else
-      #       echo "test__amd64 tag isn't present on Docker Hub."
-      #       exit 1
-      #     fi
-      #     if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
-      #       :
-      #     else
-      #       echo "test__arm64 tag isn't present on Docker Hub."
-      #       exit 1
-      #     fi
-      # - name: Log into Docker Hub with hub-tool
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #   run: |
-      #     # Fool the login command (https://github.com/docker/hub-tool/pull/198)
-      #     # ./hub-tool login
-      #     # Token commands thank to https://stackoverflow.com/a/59334315/5155484
-      #     HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
-      #     USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
-      #     USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
-      #     mkdir -p ~/.docker/
-      #     printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
-      #       "$USER_PASS" "$USERNAME" \
-      #       "$USERNAME" "$HUB_TOKEN" \
-      #       > ~/.docker/config.json
-      # - name: Remove latest__amd64 tag from Docker Hub if present
-      #   run: |
-      #     if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest__amd64"; then
-      #       ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
-      #     fi
-      # - name: Remove latest__arm64 tag from Docker Hub if present
-      #   run: |
-      #     if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest__arm64"; then
-      #       ./hub-tool tag rm --force tjdahl/dhub-test:latest__arm64 || true
-      #     fi
-      # - name: Remove latest manifest from Docker Hub if present
-      #   run: |
-      #     if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest"; then
-      #       ./hub-tool tag rm --force tjdahl/dhub-test:latest || true
-      #     fi
-      # - name: Logout of Docker Hub with hub-tool
-      #   run: |
-      #     ./hub-tool logout
-      # - name: Log into Docker Hub with docker
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #   run: |
-      #     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-      # - name: TEST
-      #   run: |
-      #     docker tag tjdahl/dhub-test:test__amd64 latest__amd64
-      #     docker tag tjdahl/dhub-test:test__arm64 latest__arm64
-      #   # docker buildx imagetools create --tag tjdahl/dhub-test:latest__amd64 tjdahl/dhub-test:test__amd64
-      #   # docker buildx imagetools create --tag tjdahl/dhub-test:latest__arm64 tjdahl/dhub-test:test__arm64
-      # - name: Generate manifest for images and push
-      #   run: |
-      #     docker manifest create tjdahl/dhub-test:latest \
-      #     --amend tjdahl/dhub-test:latest__amd64 \
-      #     --amend tjdahl/dhub-test:latest__arm64
-      #     docker manifest push tjdahl/dhub-test:latest
-      # - name: Logout of Docker Hub with docker
-      #   run: |
-      #     docker logout 
+
+      - name: Download hub-tool
+        run: |
+          curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
+
+      - name: Install hub-tool
+        run: |
+          tar -xvzf hub-tool-linux-amd64.tar.gz
+          rm hub-tool-linux-amd64.tar.gz
+          mv ./hub-tool ./hub-tool-dir
+          mv ./hub-tool-dir/hub-tool ./hub-tool
+          rm -rf ./hub-tool-dir
+
+      - name: Check if :test__amd64 and :test_arm64 tags are present on Docker Hub
+        run: |
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
+            :
+          else
+            echo "test__amd64 tag isn't present on Docker Hub."
+            exit 1
+          fi
+
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
+            :
+          else
+            echo "test__arm64 tag isn't present on Docker Hub."
+            exit 1
+          fi
+
+      - name: Log into Docker Hub with hub-tool
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          # Fool the login command (https://github.com/docker/hub-tool/pull/198)
+          # ./hub-tool login
+          # Token commands thank to https://stackoverflow.com/a/59334315/5155484
+          HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
+          USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
+          USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
+          mkdir -p ~/.docker/
+          printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
+            "$USER_PASS" "$USERNAME" \
+            "$USERNAME" "$HUB_TOKEN" \
+            > ~/.docker/config.json
+
+      - name: Remove latest manifest from Docker Hub if present
+        run: |
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "latest"; then
+            ./hub-tool tag rm --force tjdahl/dhub-test:latest || true
+          fi
+
+      - name: Logout of Docker Hub with hub-tool
+        run: |
+          ./hub-tool logout
+
+      - name: Log into Docker Hub with docker
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
+      - name: Generate manifest for images and push
+        run: |
+          docker manifest create tjdahl/dhub-test:latest \
+          --amend tjdahl/dhub-test:${{ github.event.client_payload.NEW_AMD_TAG }} \
+          --amend tjdahl/dhub-test:${{ github.event.client_payload.NEW_ARM_TAG }}
+          docker manifest push tjdahl/dhub-test:latest
+
+      - name: Logout of Docker Hub with docker
+        run: |
+          docker logout 
+
+      - name: Remove old amd64 tag from Docker Hub if present
+        run: |
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "${{ github.event.client_payload.OLD_AMD_TAG }}"; then
+            ./hub-tool tag rm --force tjdahl/dhub-test:latest__amd64 || true
+          fi
+
+      - name: Remove old arm64 tag from Docker Hub if present
+        run: |
+          if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "${{ github.event.client_payload.OLD_ARM_TAG }}"; then
+            ./hub-tool tag rm --force tjdahl/dhub-test:latest__arm64 || true
+          fi

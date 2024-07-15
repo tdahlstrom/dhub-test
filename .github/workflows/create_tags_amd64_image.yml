@@ -63,20 +63,20 @@ jobs:
             exit 1
           fi
 
-      # - name: Log into Docker Hub with docker
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #   run: |
-      #     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      - name: Log into Docker Hub with docker
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
-      # - name: Push amd64 image
-      #   run: |
-      #     docker push tjdahl/dhub-test:$new_amd_tag
+      - name: Push amd64 image
+        run: |
+          docker push tjdahl/dhub-test:${{ env.NEW_AMD_TAG }}
 
-      # - name: Logout of Docker Hub with docker
-      #   run: |
-      #     docker logout
+      - name: Logout of Docker Hub with docker
+        run: |
+          docker logout
 
       - name: Send tag names to next create_images
         uses: peter-evans/repository-dispatch@v1

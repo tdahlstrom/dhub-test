@@ -1,9 +1,5 @@
 name: Create_ARM64_Image
 on:
-  # workflow_run:
-  #   workflows: [Create_amd64_Image]
-  #   types:
-  #     - completed
   repository_dispatch:
     types: [event-tags-amd64-finished]
 
@@ -13,7 +9,7 @@ jobs:
     steps:
       - name: Checkout code repository
         uses: actions/checkout@v4
-      
+
       - name: Download dependencies from apt
         run: |
           sudo apt-get install -y qemu qemu-user-static     
@@ -29,18 +25,20 @@ jobs:
             exit 1;
           fi
 
-      # - name: Log into Docker Hub with docker
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #   run: |
-      #     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-      # - name: Push arm64 image
-      #   run: |
-      #     docker push tjdahl/dhub-test:test__arm64
-      # - name: Logout of Docker Hub with docker
-      #   run: |
-      #     docker logout
+      - name: Log into Docker Hub with docker
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
+      - name: Push arm64 image
+        run: |
+          docker push tjdahl/dhub-test:${{ github.event.client_payload.NEW_ARM_TAG }}
+
+      - name: Logout of Docker Hub with docker
+        run: |
+          docker logout
 
       - name: Send tag names to next create_images
         uses: peter-evans/repository-dispatch@v1
