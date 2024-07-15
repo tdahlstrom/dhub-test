@@ -1,10 +1,17 @@
-name: Create_Check_Tags
+name: Create_Tags_&_AMD64_Image
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v4
+      
+      - name: Download dependencies from apt
+        run: |
+          sudo apt-get install -y qemu qemu-user-static
+
       - name: Check if :test__amd64-XXXX and :test__arm64-XXXX tags are present on Docker Hub
         run: |
           repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
@@ -22,39 +29,6 @@ jobs:
             echo "test__arm64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
-
-      # - name: Download hub-tool
-      #   run: |
-      #     curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
-      # - name: Install hub-tool
-      #   run: |
-      #     tar -xvzf hub-tool-linux-amd64.tar.gz
-      #     rm hub-tool-linux-amd64.tar.gz
-      #     mv ./hub-tool ./hub-tool-dir
-      #     mv ./hub-tool-dir/hub-tool ./hub-tool
-      #     rm -rf ./hub-tool-dir
-      # - name: Check to see if image with :test__amd64 is present and remove if found
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #   run: |
-      #     if curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/' | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
-      #       # Fool the login command (https://github.com/docker/hub-tool/pull/198)
-      #       # ./hub-tool login
-      #       # Token commands thank to https://stackoverflow.com/a/59334315/5155484
-      #       HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USERNAME\", \"password\": \"$DOCKER_PASSWORD\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
-      #       USERNAME="$(printf '%s:' "$DOCKER_USERNAME" | base64 -w0)"
-      #       USER_PASS="$(printf '%s:%s' "$DOCKER_USERNAME" "$DOCKER_PASSWORD" | base64 -w0)"
-      #       mkdir -p ~/.docker/
-      #       printf '{"auths": {"hub-tool": {"auth": "%s"}, "hub-tool-refresh-token": {"auth": "%s"}, "hub-tool-token": { "auth": "%s", "identitytoken": "%s"}}}' \
-      #         "$USER_PASS" "$USERNAME" \
-      #         "$USERNAME" "$HUB_TOKEN" \
-      #         > ~/.docker/config.json
-      #       # Remove amd64 tag from Docker Hub
-      #       ./hub-tool tag rm --force tjdahl/dhub-test:test__amd64 || true
-      #       # Logout of Docker Hub with hub-tool
-      #       ./hub-tool logout
-      #     fi
 
       - name: Create amd64 tag
         run: |
@@ -78,16 +52,16 @@ jobs:
             exit 1
           fi
 
-      # - name: Create amd64 image with tag
-      #   run: |
-      #     docker build -t tjdahl/dhub-test:${new_amd_tag} --build-arg ARCH=amd64/ .
+      - name: Create amd64 image with tag
+        run: |
+          docker build -t tjdahl/dhub-test:${{ env.NEW_AMD_TAG }} --build-arg ARCH=amd64/ .
 
-      # - name: Test the built image
-      #   run: |
-      #     if [[ $(docker run --rm tjdahl/dhub-test:${new_amd_tag}) != "test" ]]; then
-      #       echo "Amd64 image failed to build properly."
-      #       exit 1
-      #     fi
+      - name: Test the built image
+        run: |
+          if [[ $(docker run --rm tjdahl/dhub-test:${{ env.NEW_AMD_TAG }}) != "test" ]]; then
+            echo "Amd64 image failed to build properly."
+            exit 1
+          fi
 
       # - name: Log into Docker Hub with docker
       #   env:
@@ -109,7 +83,7 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
           repository: tdahlstrom/dhub-test
-          event-type: event-tags-finished
+          event-type: event-tags-amd64-finished
           client-payload: |
             {
               "old_amd_tag": "${{ env.OLD_AMD_TAG }}",
