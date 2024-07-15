@@ -55,10 +55,13 @@ jobs:
       #       # Logout of Docker Hub with hub-tool
       #       ./hub-tool logout
       #     fi
+      - name: Generate tag time code
+        run: |
+          time_code="$(date +%s | tr -d '\n' | tail -c 4)"
 
       - name: Create amd64 tag
         run: |
-          echo "NEW_AMD_TAG=latest__amd64-$(date +%s | tr -d '\n' | tail -c 4)" >> $GITHUB_ENV
+          echo "NEW_AMD_TAG=latest__amd64-$time_code" >> $GITHUB_ENV
 
       - name: Check that amd64 tags aren't the same
         run: |
@@ -69,7 +72,7 @@ jobs:
 
       - name: Create arm64 tag
         run: |
-          echo "NEW_ARM_TAG=latest__arm64-$(date +%s | tr -d '\n' | tail -c 4)" >> $GITHUB_ENV
+          echo "NEW_ARM_TAG=latest__arm64-$time_code" >> $GITHUB_ENV
 
       - name: Check that arm64 tags aren't the same
         run: |
