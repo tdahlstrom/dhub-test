@@ -53,8 +53,8 @@ jobs:
           event-type: event-arm64-finished
           client-payload: |
             {
-              "OLD_AMD_TAG": "${{ github.event.client_payload.OLD_AMD_TAG }}",
-              "OLD_ARM_TAG": "${{ github.event.client_payload.OLD_ARM_TAG }}",
-              "NEW_AMD_TAG": "${{ github.event.client_payload.NEW_AMD_TAG }}",
-              "NEW_ARM_TAG": "${{ github.event.client_payload.NEW_ARM_TAG }}"
+              "old_amd_tag": "${{ github.event.client_payload.OLD_AMD_TAG }}",
+              "old_arm_tag": "${{ github.event.client_payload.OLD_ARM_TAG }}",
+              "new_amd_tag": "${{ github.event.client_payload.NEW_AMD_TAG }}",
+              "new_arm_tag": "${{ github.event.client_payload.NEW_ARM_TAG }}"
             }
