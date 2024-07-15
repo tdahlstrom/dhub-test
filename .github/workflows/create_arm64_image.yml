@@ -12,7 +12,7 @@ jobs:
 
       - name: Download dependencies from apt
         run: |
-          sudo apt-get install -y qemu qemu-user-static     
+          sudo apt-get install -y qemu qemu-user-static
 
       - name: Create arm64 image and tag
         run: |

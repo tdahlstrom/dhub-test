@@ -7,26 +7,26 @@ jobs:
     steps:
       - name: Checkout code repository
         uses: actions/checkout@v4
-      
+
       - name: Download dependencies from apt
         run: |
           sudo apt-get install -y qemu qemu-user-static
 
-      - name: Check if :test__amd64-XXXX and :test__arm64-XXXX tags are present on Docker Hub
+      - name: Check if :latest__amd64-XXXX and :latest__arm64-XXXX tags are present on Docker Hub
         run: |
           repo_tags=$(curl -s -S 'https://registry.hub.docker.com/v2/repositories/tjdahl/dhub-test/tags/')
 
-          if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__amd64"; then
-            echo "OLD_AMD_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__amd64\.\*\$ | tr -d '"')" >> $GITHUB_ENV
+          if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "latest__amd64"; then
+            echo "OLD_AMD_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*latest__amd64\.\*\$ | tr -d '"')" >> $GITHUB_ENV
           else
-            echo "test__amd64-XXXX tag isn't present on Docker Hub."
+            echo "latest__amd64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
 
-          if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "test__arm64"; then
-            echo "OLD_ARM_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*test__arm64\.\*\$ | tr -d '"')" >> $GITHUB_ENV
+          if echo $repo_tags | jq '."results"[]["name"]' | sort | grep -q "latest__arm64"; then
+            echo "OLD_ARM_TAG=$(echo $repo_tags | jq '."results"[]["name"]' | sort | grep -P \^\.\*latest__arm64\.\*\$ | tr -d '"')" >> $GITHUB_ENV
           else
-            echo "test__arm64-XXXX tag isn't present on Docker Hub."
+            echo "latest__arm64-XXXX tag isn't present on Docker Hub."
             exit 1
           fi
 
