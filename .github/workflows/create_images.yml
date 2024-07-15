@@ -11,14 +11,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout code repository
-      #   uses: actions/checkout@v4
-      # - name: Download dependencies from apt
-      #   run: |
-      #     sudo apt-get install -y qemu qemu-user-static
+      - name: Checkout code repository
+        uses: actions/checkout@v4
+      
+      - name: Download dependencies from apt
+        run: |
+          sudo apt-get install -y qemu qemu-user-static
+
+      - name: Create amd64 image with tag
+        run: |
+          docker build -t tjdahl/dhub-test:${{ github.event.client_payload.NEW_AMD_TAG }} --build-arg ARCH=amd64/ .
+
+      - name: Test the built image
+        run: |
+          if [[ $(docker run --rm tjdahl/dhub-test:${{ github.event.client_payload.NEW_AMD_TAG }}) != "test" ]]; then
+            echo "Amd64 image failed to build properly."
+            exit 1
+          fi
+      
       # - name: Download hub-tool
       #   run: |
       #     curl -OL https://github.com/docker/hub-tool/releases/download/v0.4.6/hub-tool-linux-amd64.tar.gz
+      
       # - name: Install hub-tool
       #   run: |
       #     tar -xvzf hub-tool-linux-amd64.tar.gz
@@ -26,10 +40,7 @@ jobs:
       #     mv ./hub-tool ./hub-tool-dir
       #     mv ./hub-tool-dir/hub-tool ./hub-tool
       #     rm -rf ./hub-tool-dir
-      - run: echo ${{ github.event.client_payload.OLD_AMD_TAG }}
-      - run: echo ${{ github.event.client_payload.OLD_ARM_TAG }}
-      - run: echo ${{ github.event.client_payload.NEW_AMD_TAG }}
-      - run: echo ${{ github.event.client_payload.NEW_ARM_TAG }}
+      
       # - name: Check to see if image with :test__arm64 is present and remove if found
       #   env:
       #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
