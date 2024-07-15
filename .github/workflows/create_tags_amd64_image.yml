@@ -36,7 +36,7 @@ jobs:
 
       - name: Check that amd64 tags aren't the same
         run: |
-          if [[ ${{ env.OLD_AMD_TAG}} == ${{ env.NEW_AMD_TAG}} ]]; then
+          if [[ ${{ env.OLD_AMD_TAG }} == ${{ env.NEW_AMD_TAG }} ]]; then
             echo "OLD tag and NEWly generated tag for amd64 are the same."
             exit 1
           fi
@@ -47,14 +47,18 @@ jobs:
 
       - name: Check that arm64 tags aren't the same
         run: |
-          if [[ ${{ env.OLD_ARM_TAG}} == ${{ env.NEW_ARM_TAG}} ]]; then
+          if [[ ${{ env.OLD_ARM_TAG }} == ${{ env.NEW_ARM_TAG }} ]]; then
             echo "OLD tag and NEWly generated tag for arm64 are the same."
             exit 1
           fi
 
-      - name: Create amd64 image with tag
+      - name: Create amd64 image with tag, check for amd64 specific Dockerfile
         run: |
-          docker build -t tjdahl/dhub-test:${{ env.NEW_AMD_TAG }} --build-arg ARCH=amd64/ .
+          if [ -f ./Dockerfile/Dockerfile_amd64 ]; then
+            docker build -f ./Dockerfile/Dockerfile_amd64 -t tjdahl/dhub-test:${{ env.NEW_AMD_TAG }} --build-arg ARCH=amd64/ .
+          else
+            docker build -t tjdahl/dhub-test:${{ env.NEW_AMD_TAG }} --build-arg ARCH=amd64/ .
+          fi
 
       - name: Test the built image
         run: |

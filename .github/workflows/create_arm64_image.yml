@@ -14,9 +14,13 @@ jobs:
         run: |
           sudo apt-get install -y qemu qemu-user-static
 
-      - name: Create arm64 image and tag
+      - name: Create arm64 image with tag, check for arm64 specific Dockerfile
         run: |
+        if [ -f ./Dockerfile/Dockerfile_arm64 ]; then
+          docker buildx build --platform linux/arm64 -f ./Dockerfile/Dockerfile_arm64 -t tjdahl/dhub-test:${{ github.event.client_payload.NEW_ARM_TAG }} .
+        else
           docker buildx build --platform linux/arm64 -t tjdahl/dhub-test:${{ github.event.client_payload.NEW_ARM_TAG }} .
+        fi
 
       - name: Test built image
         run: |
