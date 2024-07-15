@@ -58,6 +58,7 @@ jobs:
       - name: Generate tag time code
         run: |
           time_code="$(date +%s | tr -d '\n' | tail -c 4)"
+          echo $time_code
 
       - name: Create amd64 tag
         run: |
